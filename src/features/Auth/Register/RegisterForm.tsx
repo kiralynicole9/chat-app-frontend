@@ -34,7 +34,7 @@ export function RegisterForm(){
     }
 
     const {register, handleSubmit, formState: {errors}} = useForm({
-        resolver: yupResolver(registerSchema)
+       resolver: yupResolver(loginSchema)
     })
 
     function onSubmit(data: any){
@@ -44,7 +44,11 @@ export function RegisterForm(){
             console.log(user);
         }else{
             const loginapi = new LoginAPI();
-            
+            const loginData = {
+               "email": data.email,
+               "password": data.password
+            }
+            loginapi.login(loginData);
 
         }
 
@@ -68,6 +72,7 @@ console.log(handleSubmit)
 
             </div>
 
+{/* 
             {isRegister && (
 
             <div>
@@ -107,7 +112,7 @@ console.log(handleSubmit)
 
             </div>
             )
-            }
+            } */}
 
             <button type="submit">
                 {isRegister ? 'Register' : 'Login'}

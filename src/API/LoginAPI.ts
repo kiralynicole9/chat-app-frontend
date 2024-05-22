@@ -3,8 +3,8 @@ import { BaseAPI } from "./BaseAPI";
 
 export class LoginAPI extends BaseAPI{
 
-    public async login(email: object){
-        return this.post(email);
+    public async login(data: object){
+        return this.post(data);
     }
 
      protected getEndpoint(): string {

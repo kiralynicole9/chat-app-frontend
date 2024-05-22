@@ -7,3 +7,36 @@ body{
   padding: 0px 30px;
   
 }
+
+.flex-container{
+  display:flex;
+  align-items: flex-start;   
+  color: white;
+}
+
+.form-group{
+  display:flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-bottom: 20px;
+  width:100%;
+  
+}
+.form-group input{   
+  width: 100%;
+  height: 40px;
+  border-radius: 3px;
+  background: #9598ab;
+  outline: 0;
+  border: 0;
+  
+}
+
+.errors{
+  color: red;
+}
+
+button:hover{
+background-color: blueviolet;
+
+}

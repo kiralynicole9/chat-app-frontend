@@ -16,6 +16,9 @@ export abstract class BaseAPI {
             },
             body:JSON.stringify(body),
         })
+        if(data.status >= 400){
+            throw new Error(data.statusText);
+        }
         return data;
     }
 
