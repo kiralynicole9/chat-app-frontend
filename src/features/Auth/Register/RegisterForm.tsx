@@ -3,61 +3,36 @@ import "./Register.css"
 import * as yup from 'yup';
 import { yupResolver } from "@hookform/resolvers/yup";
 import { UserAPI } from "../../../API/UserAPI";
-import { useLocation, useParams } from "react-router-dom";
-import { LoginAPI } from "../../../API/LoginAPI";
-
-const commonSchema = {
-    email: yup.string().email("Please type a valid email").required("Email is required."),
-    password: yup.string().min(6, "Password must be at least 6 characters long").required("Password is required."),
-};
-
-const loginSchema = yup.object(commonSchema);
 
 
 const registerSchema = yup.object({
-    ...commonSchema,
     username: yup.string().required("Username is required."),
     firstName: yup.string().required("First name is required."),
     lastName: yup.string().required("Last name is required."),
     retypePassword: yup.string().oneOf([yup.ref('password')], "The passwords do not match").required("Please retype your password"),
-
+    email: yup.string().email("Please type a valid email").required("Email is required."),
+    password: yup.string().min(6, "Password must be at least 6 characters long").required("Password is required."),
 })
 
 
 export function RegisterForm(){
 
-    const {pathname} = useLocation();
-    let isRegister = false;
-
-    if(pathname === '/register'){
-        isRegister = true;
-    }
-
     const {register, handleSubmit, formState: {errors}} = useForm({
-       resolver: yupResolver(loginSchema)
+       resolver: yupResolver(registerSchema)
     })
 
     function onSubmit(data: any){
-        if(isRegister){
+        
             const userapi = new UserAPI();
             const user = userapi.register(data);
             console.log(user);
-        }else{
-            const loginapi = new LoginAPI();
-            const loginData = {
-               "email": data.email,
-               "password": data.password
-            }
-            loginapi.login(loginData);
-
-        }
 
     }
 
 console.log(handleSubmit)
     return (
         <form onSubmit={handleSubmit(onSubmit)} >
-            <h1>{isRegister ? 'Register' : 'Login'}</h1>
+            <h1>Register</h1>
             <div className="form-group">
                 <label htmlFor="email" >Email:</label>
                 <input type="email" id="email" {...register('email')}/>
@@ -71,9 +46,6 @@ console.log(handleSubmit)
                 {errors.password && <p className="errors">{errors.password.message}</p>}
 
             </div>
-
-{/* 
-            {isRegister && (
 
             <div>
 
@@ -111,12 +83,9 @@ console.log(handleSubmit)
             </div>
 
             </div>
-            )
-            } */}
+            
 
-            <button type="submit">
-                {isRegister ? 'Register' : 'Login'}
-            </button>
+            <button type="submit">Register</button>
             
 
         </form>

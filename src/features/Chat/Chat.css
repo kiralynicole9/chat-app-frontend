@@ -1,0 +1,29 @@
+.page{
+    
+    display: flex;
+    align-items: stretch;
+    height: 100%;
+    flex-flow: row wrap;
+    justify-content: space-around;
+    max-width: 1600px;
+    margin: 0 auto;
+}
+.column{
+    flex-grow: 1;
+    padding: 10px;
+}
+
+.column-left{
+    background: #272739;
+    flex-grow: 0.15;
+}
+
+.column-right{
+    background: #3a3a4e;
+    flex-grow: 1;
+    border-left: 3px solid #464861;
+}
+.column-reversed {
+    display:flex;
+    flex-direction: column-reverse;
+}

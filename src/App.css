@@ -1,11 +1,10 @@
 body{
-  background-color: rgb(1, 1, 27);
+  background-color: rgb(30 30 46);
+  height: 100%;
   color: lightgray;
 }
-#root {
-  max-width: 1400px;
-  padding: 0px 30px;
-  
+#root{
+  height: 100%;
 }
 
 .flex-container{

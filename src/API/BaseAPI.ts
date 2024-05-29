@@ -22,8 +22,28 @@ export abstract class BaseAPI {
         return data;
     }
 
-    protected get(){
+    protected async get(){
+        const url = this.createUrl();
+        const data = await fetch(url, {
+            method: 'GET'
+        })
+        return data;
+    }
 
+    protected async getById(id:string){
+        const url = this.createUrl() + "/" + id;
+        const res = await fetch (url, {
+            method: 'GET'
+        })
+        return await res.json();
+    }
+
+    protected async getByQueryParams(queryParams: string){
+        const url = this.createUrl() + "?" + queryParams;
+        const res = await fetch (url, {
+            method: 'GET'
+        })
+        return await res.json();
     }
 
     protected put(){

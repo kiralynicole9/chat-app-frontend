@@ -1,20 +1,28 @@
-import { LoginAPI } from "../../../API/LoginAPI"
-import { useState } from "react";
+import { useContext, useState } from "react";
+import { AuthContext } from "../../../App";
 
 export function Login(){
     const [data, setData] = useState({});
     const [error, setError] = useState("");
+    const {login, setUser} = useContext(AuthContext);
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async (e: any) => {
         e.preventDefault();
-        const loginapi = new LoginAPI();
+       // const loginapi = new LoginAPI();
+        // try{
+        //     const res = await loginapi.login(data);
+        //     setError("");
+        // }catch(e){
+        //     setError("Invalid login");
+        // }
+       
         try{
-            const res = await loginapi.login(data);
+           const user = await login(data);
+           setUser(user);
             setError("");
         }catch(e){
-            setError("Invalid login");
+            setError("Invalid login")
         }
-        
     }
 
     const addEmail = (email:string) => {
@@ -32,22 +40,24 @@ export function Login(){
     }
 
     return(
-        <div>
-            {error && (
-                <h3>{error}</h3>
-            )}
-            <h1>Login</h1>
-            <form onSubmit={handleSubmit}>
-                <div className="form-group">
-                    <label htmlFor="email">Email:</label>
-                    <input type="email" onChange={(e) => {addEmail(e.target.value)}} />
-                </div>
-                <div className="form-group">
-                    <label htmlFor="password">Password:</label>
-                    <input type="password" onChange={(e) => {addPassword(e.target.value)}} />
-                </div>
-                <button type="submit">Login</button>
-            </form>
+        <div className="page">
+            <div className="column column-right">
+                {error && (
+                    <h3>{error}</h3>
+                )}
+                <h1>Login</h1>
+                <form onSubmit={handleSubmit}>
+                    <div className="form-group">
+                        <label htmlFor="email">Email:</label>
+                        <input type="email" onChange={(e) => {addEmail(e.target.value)}} />
+                    </div>
+                    <div className="form-group">
+                        <label htmlFor="password">Password:</label>
+                        <input type="password" onChange={(e) => {addPassword(e.target.value)}} />
+                    </div>
+                    <button type="submit">Login</button>
+                </form>
+            </div>
         </div>
     )
 }

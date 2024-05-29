@@ -1,0 +1,9 @@
+.users-list-item{
+    display:flex;
+    align-items: center;
+    margin-bottom: 7px;
+    font-size: 14px;
+}
+.users-list{
+    padding: 0;
+}
