@@ -61,7 +61,7 @@ export const Message = () => {
 
         return () => {clearInterval(intervalId)}
 
-    }, [userId, user?.id])
+    }, [userId, loggedInUser?.id])
 
     function handleSend(){
         //newMessageNotif.play();
@@ -79,21 +79,14 @@ export const Message = () => {
     return (
         <div className="container">   
             <h3>{user?.firstname}</h3>
-          
-                {messages.map((message) => (
-                    <div >
-                        <span className="message">
-                            {
-                                message.from_users == user?.id && <span>{user?.firstname}: {message["message"]}</span>
-                            }
-                            {
-                                message.from_users != user?.id && <span>me: {message["message"]}</span>
-                            }
-                        </span>
-                    </div>    
-                ))}
-
-            
+            {messages.map((message) => (
+                <div >
+                    <span className="message">
+                        {message.from_users == userId && <span>{user?.firstname}: {message["message"]}</span>}
+                        {message.from_users != userId && <span>me: {message["message"]}</span>}
+                    </span>
+                </div>    
+            ))}
 
             <span className="send-group">
                 <input type="text" className="send-input" onChange={(e) => {setData(e.target.value)}} />

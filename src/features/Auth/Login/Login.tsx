@@ -1,25 +1,31 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../../../App";
+import { useNavigate } from "react-router-dom";
+
+const hasUserSession = () => {
+    return window.localStorage.getItem("user");
+}
 
 export function Login(){
     const [data, setData] = useState({});
     const [error, setError] = useState("");
     const {login, setUser} = useContext(AuthContext);
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        if (hasUserSession()) {
+            navigate('/')
+        };
+    }, [navigate]);
 
     const handleSubmit = async (e: any) => {
         e.preventDefault();
-       // const loginapi = new LoginAPI();
-        // try{
-        //     const res = await loginapi.login(data);
-        //     setError("");
-        // }catch(e){
-        //     setError("Invalid login");
-        // }
-       
+
         try{
            const user = await login(data);
            setUser(user);
             setError("");
+            navigate("/");
         }catch(e){
             setError("Invalid login")
         }

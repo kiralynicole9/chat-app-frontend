@@ -8,6 +8,15 @@ import { LoginAPI } from './API/LoginAPI';
 import { Login } from './features/Auth/Login/Login';
 import { User } from './API/UserAPI';
 
+const saveUserSession = (user: User) => {
+  window.localStorage.setItem("user", JSON.stringify(user));
+}
+
+const getUserSession = () => {
+  return JSON.parse(window.localStorage.getItem("user") as string);
+}
+
+
 const authUtilities = {
     login: async(data: any) => {
       const loginapi = new LoginAPI();
@@ -27,11 +36,15 @@ function App() {
   const navigate = useNavigate();
   
   useEffect(() => {
-    console.log("aaa")
     if(user?.id){
-      navigate("/")
+      saveUserSession(user);
     }
-  }, [user?.id])
+
+    if (getUserSession() && !user?.id) {
+      const user = getUserSession();
+      setUser(user);
+    }
+  }, [user?.id, user, navigate])
 
   return (
     <AuthContext.Provider value={{
