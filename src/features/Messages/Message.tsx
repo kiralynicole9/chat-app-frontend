@@ -6,6 +6,9 @@ import { useParams } from "react-router-dom";
 import { UserAPI } from "../../API/UserAPI";
 import { User } from "../../API/UserAPI";
 import { AuthContext } from "../../App";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPaperPlane, faPlane } from "@fortawesome/free-solid-svg-icons";
+import { UserAvatar } from "../../components/UserAvatar/UserAvatar";
 
 type MessageList = {
     fieldName: string,
@@ -13,7 +16,6 @@ type MessageList = {
  }
 
 const newMessageNotif = new Audio("new-message.mp3");
-
 export const Message = () => {
 
     const [messages, setMessages] = useState([]);
@@ -21,6 +23,7 @@ export const Message = () => {
     const {userId} = useParams();
     const [user, setUser] = useState<User>();
     const {user: loggedInUser} = useContext(AuthContext);
+    const [wsClient, setWs] = useState({});
     
     useEffect(() => {
         const api = new UserAPI();
@@ -30,6 +33,13 @@ export const Message = () => {
         api.getUser(userId).then((user) => {
             setUser(user);
         });
+
+        if(userId){
+            const ws = new WebSocket("ws://localhost:3000"); 
+            setWs(ws);
+           
+        }
+        //return () => {ws.close()}
 
     }, [userId])
 
@@ -43,36 +53,62 @@ export const Message = () => {
             setMessages(message);
         })
         
-        const intervalId = setInterval(() => {
-            console.log("interval");
-            const messageapi = new MessageAPI();
-            messageapi.getMessages(userId, loggedInUser?.id).then((_messages) => {
+        // const intervalId = setInterval(() => {
+        //     console.log("interval");
+        //     const messageapi = new MessageAPI();
+        //     messageapi.getMessages(userId, loggedInUser?.id).then((_messages) => {
                 
-                setMessages((currentMessages) => {
-                    const lastMessage = _messages[_messages.length - 1];
-                    if(lastMessage?.from !== loggedInUser?.id && _messages.length > currentMessages.length ){
-                        newMessageNotif.play();
-                    }
-                    return _messages;
-                });
+        //         setMessages((currentMessages) => {
+        //             const lastMessage = _messages[_messages.length - 1];
+        //             if(lastMessage?.from !== loggedInUser?.id && _messages.length > currentMessages.length ){
+        //                 newMessageNotif.play();
+        //             }
+        //             return _messages;
+        //         });
 
-            })
-        }, 1000)
+        //     })
+        // }, 1000)
 
-        return () => {clearInterval(intervalId)}
+        // return () => {clearInterval(intervalId)}
 
     }, [userId, loggedInUser?.id])
 
+    useEffect(() => {
+        if(!wsClient.addEventListener) return;
+        const messageCallback = (e) => {
+            console.log(e);
+            newMessageNotif.play();
+            setMessages([
+                ...messages,
+               ...JSON.parse(e.data)
+            ])
+        }
+        wsClient?.addEventListener("message", messageCallback);
+        return () => {wsClient?.removeEventListener("message", messageCallback)}
+    }, [messages])
     function handleSend(){
         //newMessageNotif.play();
         const message = {
-            "from_users" : loggedInUser?.id,
-            "to_users" : userId,
-            "text" : data,
+            "to_user" : userId,
+            "message" : data,
         }
-        const messageapi = new MessageAPI();
-        messageapi.sendMessages(message);
-        console.log(data);
+        setMessages([
+            ...messages,
+            {
+                from_users: user.id,
+                to_users: userId,
+                message: data
+            }
+        ])
+        wsClient.send(JSON.stringify({
+            type: "send_message",
+            data: {
+                ...message
+            }
+        }))
+        // const messageapi = new MessageAPI();
+        // messageapi.sendMessages(message);
+        // console.log(data);
     }
 
 
@@ -82,15 +118,27 @@ export const Message = () => {
             {messages.map((message) => (
                 <div >
                     <span className="message">
-                        {message.from_users == userId && <span>{user?.firstname}: {message["message"]}</span>}
-                        {message.from_users != userId && <span>me: {message["message"]}</span>}
+                        {message.from_users == userId && <>
+                            <span className="message-user">
+                                <UserAvatar username={user?.firstname}></UserAvatar>{user?.firstname}
+                            </span>
+                            <span className="message-text">{message["message"]}</span>
+                        </>}
+                         {message.from_users != userId && <>
+                            <span className="message-user">
+                                <UserAvatar username="me"></UserAvatar>me 
+                            </span>
+                            <span className="message-text">{message["message"]}</span>
+                        </>}
                     </span>
                 </div>    
             ))}
 
             <span className="send-group">
-                <input type="text" className="send-input" onChange={(e) => {setData(e.target.value)}} />
-                <button onClick={handleSend} >Send</button>
+                <input type="text" placeholder="Type a message..." className="send-input" onChange={(e) => {setData(e.target.value)}} />
+                <button onClick={handleSend} className="send-message">
+                    <FontAwesomeIcon icon={faPaperPlane}></FontAwesomeIcon>
+                </button>
             </span>
         </div>
     );

@@ -50,6 +50,18 @@ export abstract class BaseAPI {
 
     }
 
+    protected async patch<T>(id: number, data: Partial<T>){
+        const url = this.createUrl() + "/" + id;
+        const res = await fetch(url, {
+            method: 'PATCH',
+            body: JSON.stringify(data),
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
+        return await res.json();
+    }
+
 
 
 }

@@ -7,14 +7,8 @@ import { createContext, useEffect, useState } from 'react';
 import { LoginAPI } from './API/LoginAPI';
 import { Login } from './features/Auth/Login/Login';
 import { User } from './API/UserAPI';
-
-const saveUserSession = (user: User) => {
-  window.localStorage.setItem("user", JSON.stringify(user));
-}
-
-const getUserSession = () => {
-  return JSON.parse(window.localStorage.getItem("user") as string);
-}
+import { getUserSession, saveUserSession } from './UserSession';
+import { Profile } from './features/Profile/Profile';
 
 
 const authUtilities = {
@@ -44,7 +38,12 @@ function App() {
       const user = getUserSession();
       setUser(user);
     }
-  }, [user?.id, user, navigate])
+    if(user){
+      navigate("/");
+    }else{
+      navigate("/login");
+    }
+  }, [user?.id, user])
 
   return (
     <AuthContext.Provider value={{

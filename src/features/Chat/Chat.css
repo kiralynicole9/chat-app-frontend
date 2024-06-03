@@ -1,21 +1,34 @@
 .page{
     
     display: flex;
+    flex-direction: column;
     align-items: stretch;
-    height: 100%;
-    flex-flow: row wrap;
-    justify-content: space-around;
-    max-width: 1600px;
+    height: 100vh;
+    /* flex-flow: row wrap; */
+    justify-content: stretch;
     margin: 0 auto;
+    overflow: hidden;
+
 }
+
+.header{
+    background: linear-gradient(90deg, #272739 40%, #3a3b4f 61%)
+}
+.chat{
+    display: flex;
+}
+
 .column{
     flex-grow: 1;
     padding: 10px;
+    overflow: auto;
+    height: 95vh;    
 }
 
 .column-left{
     background: #272739;
-    flex-grow: 0.15;
+    flex-grow: 0.25;
+    min-width: 25vw;    
 }
 
 .column-right{
@@ -26,4 +39,19 @@
 .column-reversed {
     display:flex;
     flex-direction: column-reverse;
+}
+.menu{
+    justify-content: flex-end;
+    padding: 10px 20px;
+    list-style: none;
+    margin: 0px;
+    display:flex;
+
+}
+.menu li {
+    padding: 0px 10px;
+    position: relative;
+}
+.menu li:last-child{
+    padding-right: 0px;
 }
