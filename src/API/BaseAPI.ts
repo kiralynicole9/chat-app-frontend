@@ -22,8 +22,11 @@ export abstract class BaseAPI {
         return data;
     }
 
-    protected async get(){
-        const url = this.createUrl();
+    protected async get(section?: string){
+        let url = this.createUrl();
+        if(section){
+            url+=section
+        }
         const data = await fetch(url, {
             method: 'GET'
         })
@@ -61,7 +64,5 @@ export abstract class BaseAPI {
         });
         return await res.json();
     }
-
-
 
 }

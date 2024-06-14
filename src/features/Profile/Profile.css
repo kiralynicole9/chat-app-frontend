@@ -1,13 +1,13 @@
+
 .profile-popup{
     font-size: 12px;
     width: 400px;
     height: 400px;
-    background-color: #eee;
+    background-color: #e6e0f5;
     position: absolute;
     color: #000;
     border-radius: 5px;
     border-top-right-radius: 0px;
-    overflow: auto;
     box-shadow: 3px 3px 6px rgba(0,0,0,0.3);
     right: 0;
     
@@ -19,16 +19,37 @@
     border: 1px solid #e8e4ed;
 }
 
+.contact-information-title{
+    font-weight: bold;
+}
+
 .contact-information-header{
     display:flex;
     justify-content: space-between;
 }
 
+.profile-title{
+    padding: 10px 20px ;
+    font-size: 12px;
+    font-weight: bold;
+    background-color: #ece8f5;
+    border-bottom: 1px solid #d6d5d5;
+    color: #171717;
+}
 
+.profile-title-text{
+    margin-left: 3px;
+}
 
+.emoji-picker{
+    position: absolute !important;
+}
 .contact-phone:hover{
     color: #272739;
     font-weight: bold;
+    font-size: 1;
 }
+
+
 
 

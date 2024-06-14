@@ -706,6 +706,13 @@ electron-to-chromium@^1.4.668:
   resolved "https://registry.npmjs.org/electron-to-chromium/-/electron-to-chromium-1.4.774.tgz"
   integrity sha512-132O1XCd7zcTkzS3FgkAzKmnBuNJjK8WjcTtNuoylj7MYbqw5eXehjQ5OK91g0zm7OTKIPeaAG4CPoRfD9M1Mg==
 
+emoji-picker-react@^4.9.4:
+  version "4.9.4"
+  resolved "https://registry.npmjs.org/emoji-picker-react/-/emoji-picker-react-4.9.4.tgz"
+  integrity sha512-u/3IsmMPr3l9Tcsuwpw4VgHb34W0BjC6iE06EXNHNOnNjBtW0BUN8upba8V3piUht00Sa+/L1+hs/xVmdWsswA==
+  dependencies:
+    flairup "0.0.39"
+
 esbuild@^0.20.1:
   version "0.20.2"
   resolved "https://registry.npmjs.org/esbuild/-/esbuild-0.20.2.tgz"
@@ -904,6 +911,11 @@ find-up@^5.0.0:
   dependencies:
     locate-path "^6.0.0"
     path-exists "^4.0.0"
+
+flairup@0.0.39:
+  version "0.0.39"
+  resolved "https://registry.npmjs.org/flairup/-/flairup-0.0.39.tgz"
+  integrity sha512-UVPkzZmZeBWBx1+Ovo++kYKk9Wi32Jxt+c7HsxnEY80ExwFV54w+NyquFziqMLS0BnGVE43yGD4OvIwaAm/WiQ==
 
 flat-cache@^3.0.4:
   version "3.2.0"
@@ -1347,7 +1359,7 @@ react-router@6.23.1:
   dependencies:
     "@remix-run/router" "1.16.1"
 
-"react@^16.8.0 || ^17 || ^18", react@^18.2.0, react@^18.3.1, react@>=16.3, react@>=16.8:
+"react@^16.8.0 || ^17 || ^18", react@^18.2.0, react@^18.3.1, react@>=16, react@>=16.3, react@>=16.8:
   version "18.3.1"
   resolved "https://registry.npmjs.org/react/-/react-18.3.1.tgz"
   integrity sha512-wS+hAgJShR0KhEvPJArfuPVN1+Hz1t0Y6n5jLrGQbkb4urgPE/0Rve+1kMB1v/oWgHgm4WIcV+i7F2pTVj+2iQ==

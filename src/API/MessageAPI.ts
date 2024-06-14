@@ -10,6 +10,14 @@ export class MessageAPI extends BaseAPI{
         return this.post(data);
     }
 
+    public async updateMessage(id: number, data: Partial<object>){
+        return this.patch(id, data);
+    }
+
+    public async countMessagesFromUser(loggedInUserId: number){
+        return this.get(`/count/${loggedInUserId}`);
+    }
+
     protected getEndpoint(): string {
         return "messages";
         

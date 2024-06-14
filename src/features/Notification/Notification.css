@@ -53,3 +53,22 @@
 .popup-row:nth-child(2n){
     background-color: #fefefe;
 }
+
+.notification-count{
+    background: #ca062d;
+    border-radius: 100%;
+    font-size: 8px;
+    width: 15px;
+    height: 15px;
+    display: flex;
+    font-weight: bold;
+    position: absolute;
+    bottom: -5px;
+    right: -5px;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+}
+.notification-bell{
+    position: relative;
+}

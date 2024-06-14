@@ -12,5 +12,24 @@
     font-weight: bold;
     line-height: 0;
     margin: 0 5px 0 0;
+    position: relative;
     
+}
+.users-list-item .user-avatar::after{
+    content: "";
+    width: 8px;
+    height: 8px;
+    background-color: #272739;
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    margin-right: -4px;
+    margin-bottom: -4px;
+    border-radius: 50%;
+    border: 1px solid #595b5d;
+}
+
+.user-active .user-avatar::after{
+    background-color: rgb(49, 205, 49);
+    border-color: rgb(49, 205, 49);
 }
