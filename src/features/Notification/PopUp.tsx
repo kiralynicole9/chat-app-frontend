@@ -4,10 +4,8 @@ import { useEffect, useState } from "react";
 import {NotificationAPI} from "../../API/NotificationAPI";
 import { Notification } from "../../API/NotificationAPI";
 import { useNavigate } from "react-router-dom";
+import { getUserSession } from "../../UserSession";
 
-const getUserSession = () => {
-    return JSON.parse(window.localStorage.getItem("user") as string);
-}
 
 export const PopUp = (props) => {
 

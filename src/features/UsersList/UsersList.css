@@ -1,9 +1,31 @@
 .users-list-item{
     display:flex;
     align-items: center;
-    margin-bottom: 7px;
     font-size: 14px;
     transition: all .5s ease-in-out;
+    padding: 5px 15px;
+    position: relative;
+    color: #fff;
+    justify-content: space-between;
+}
+.users-list-item:hover, .users-list-item.highlight {
+  background: linear-gradient(90deg, #464861, transparent 72%);
+  cursor: pointer;
+}
+.messages-counter {
+  font-weight: bold;
+  font-size: 11px;
+  background: #7f4b99;
+  border-radius: 50px;
+  height: 26px;
+  width: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.user-status {
+  margin-left: 5px;
 }
 
 .user-animate{  

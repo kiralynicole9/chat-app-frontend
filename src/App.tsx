@@ -1,4 +1,4 @@
-import {Routes, Route, redirect, useNavigate } from 'react-router-dom';
+import {Routes, Route, redirect, useNavigate, useRouteLoaderData, useLocation } from 'react-router-dom';
 
 import './App.css'
 import { Register } from './features/Auth/Register/Register';
@@ -28,7 +28,15 @@ export const AuthContext = createContext(authUtilities);
 function App() {
   const [user, setUser] = useState<User>();
   const navigate = useNavigate();
+  const {pathname} = useLocation();
   
+  useEffect(() => {
+    console.log('sdds')
+    if (!getUserSession()) {
+      navigate("/login");
+    }
+  }, [navigate])
+
   useEffect(() => {
     if(user?.id){
       saveUserSession(user);
@@ -38,12 +46,15 @@ function App() {
       const user = getUserSession();
       setUser(user);
     }
-    if(user){
-      navigate("/");
-    }else{
+
+    console.log(pathname, user, 'dfsdfsdf')
+
+    if(!getUserSession()) {
       navigate("/login");
+    } else if (pathname === '/login' || pathname === '/register') {
+      navigate('/')
     }
-  }, [user?.id, user])
+  }, [user, navigate])
 
   return (
     <AuthContext.Provider value={{
@@ -53,8 +64,8 @@ function App() {
       <Routes>
         <Route path='/register' element={<Register></Register>}></Route> 
         <Route path='/login' element={<Login></Login>}></Route>
-        <Route path='/' element={<Chat></Chat>}></Route>
         <Route path='/:userId' element = {<Chat></Chat>}></Route>
+        {getUserSession() && <Route path='/' element={<Chat></Chat>}></Route>}
 
       </Routes>
 

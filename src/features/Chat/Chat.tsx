@@ -3,36 +3,39 @@ import "./Chat.css"
 import { Message } from "../Messages/Message";
 import { Notification } from "../Notification/Notification";
 import { Logout } from "../Auth/Logout/Logout";
-import { useEffect } from "react";
-import { getUserSession } from "../../UserSession";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Profile } from "../Profile/Profile";
+import { HomePage } from "../Home/HomePage";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPeopleArrows, faPeopleGroup, faUsers } from "@fortawesome/free-solid-svg-icons";
+import { faMessage } from "@fortawesome/free-solid-svg-icons/faMessage";
+import { useState } from "react";
 
 export const Chat = () => {
     const navigate = useNavigate();
-
-    useEffect(() => {
-        console.log(getUserSession());
-        
-    }, [])
+    const { userId } = useParams();
+    const [ displayUsersMenu, setDisplayUsersMenu ] = useState(false);
 
     return (
-        <div className="page">
+        <div className={`page${displayUsersMenu ? " mobile-users-menu-display" : ""}`}>
             <header className="header">
-                <nav>
+                <div className="logo" onClick={() => {navigate('/'); setDisplayUsersMenu(false)}}>Logo</div>
+                <nav className="nav-menu">
                     <ul className="menu">
                         <li><Profile></Profile></li>
                         <li><Notification></Notification></li>
                         <li><Logout></Logout></li>
+                        <li className="mobile-users-button" onClick={() => setDisplayUsersMenu(!displayUsersMenu)}><FontAwesomeIcon icon={faPeopleGroup}></FontAwesomeIcon></li>
                     </ul>
                 </nav>
             </header>
             <div className="chat">
-            <div className="column column-left">
+            <div className="column column-left" onClick={() => setDisplayUsersMenu(false)}>
                 <UsersList fieldName="firstname" secondFieldName="lastname"></UsersList>
             </div>
             <div className="column column-right column-reversed">
-                <Message></Message>
+                {userId && <Message></Message>}
+                {!userId && <HomePage></HomePage>}
             </div>
 
             </div>

@@ -10,6 +10,7 @@
     border-top-right-radius: 0px;
     box-shadow: 3px 3px 6px rgba(0,0,0,0.3);
     right: 0;
+    z-index: 9999;
     
 }
 

@@ -30,6 +30,6 @@
 }
 
 .user-active .user-avatar::after{
-    background-color: rgb(49, 205, 49);
-    border-color: rgb(49, 205, 49);
+    background-color: #1ca076;
+    border-color: #1ca077;
 }

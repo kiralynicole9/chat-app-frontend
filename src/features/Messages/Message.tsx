@@ -17,7 +17,6 @@ type MessageList = {
     secondFieldName: string
  }
 
-const newMessageNotif = new Audio("new-message.mp3");
 export const Message = () => {
 
     const [messages, setMessages] = useState([]);
@@ -61,24 +60,6 @@ export const Message = () => {
                 }
             }
         })
-        
-        // const intervalId = setInterval(() => {
-        //     console.log("interval");
-        //     const messageapi = new MessageAPI();
-        //     messageapi.getMessages(userId, loggedInUser?.id).then((_messages) => {
-                
-        //         setMessages((currentMessages) => {
-        //             const lastMessage = _messages[_messages.length - 1];
-        //             if(lastMessage?.from !== loggedInUser?.id && _messages.length > currentMessages.length ){
-        //                 newMessageNotif.play();
-        //             }
-        //             return _messages;
-        //         });
-
-        //     })
-        // }, 1000)
-
-        // return () => {clearInterval(intervalId)}
 
     }, [userId, loggedInUser?.id])
 
@@ -96,8 +77,6 @@ export const Message = () => {
             messageapi.updateMessage(dataRes.message[0].id, {
                 has_been_read: true
             })
-            console.log(e);
-            newMessageNotif.play();
             setMessages([
                 ...messages,
                ...dataRes.message
@@ -108,7 +87,6 @@ export const Message = () => {
     }, [messages])
 
     function handleSend(){
-        //newMessageNotif.play();
         console.log(data);
         const message = {
             "to_user" : userId,
@@ -177,54 +155,54 @@ export const Message = () => {
         console.log(files)
     }
 
-
     return (
-        <div className="container">   
-            <h3>{user?.firstname}</h3>
-            {messages.map((message) => (
-                <div >
-                    <span className="message">
-                        {userId+""}
-                        {message.from_users}
-                        {message.from_users == userId && <>
-                            <span className="message-user">
-                                <UserAvatar username={user?.firstname}></UserAvatar>{user?.firstname}
-                            </span>
-                            <span className="message-text">{message["message"]}</span>
-                        </>}
-                         {message.from_users != userId && <>
-                            <span className="message-user">
-                                <UserAvatar username="me"></UserAvatar>me 
-                            </span>
-                            <span className="message-text">{message["message"]}</span>
-                        </>}
+        <div className="container message-container">   
+            {userId && (
+                <>
+                <div className="message-inner-container">
+                    <div className="message-intro">
+                        <h3>{user?.firstname} {user?.lastname} {user?.status}</h3>
+                        <p>This is your very begining chat with {user?.firstname}</p>
+                    </div>
+                    <div className="message-content">
+                        {messages.map((message) => (
+                            <div >
+                                <span className="message">
+                                    {message.from_users == userId && <>
+                                        <span className="message-user">
+                                            <UserAvatar username={user?.firstname}></UserAvatar>{user?.firstname}
+                                        </span>
+                                        <span className="message-text" dangerouslySetInnerHTML={{__html: message["message"]}} />
+                                    </>}
+                                    {message.from_users != userId && <>
+                                        <span className="message-user">
+                                            <UserAvatar username="me"></UserAvatar>me 
+                                        </span>
+                                        <span className="message-text" dangerouslySetInnerHTML={{__html: message["message"]}} />
+                                    </>}
+                                </span>
+                            </div>    
+                        ))}
+                    </div>
+                </div>
+                    <span className="send-group">
+                        <span>
+                            <FontAwesomeIcon icon={faFaceSmile} onClick={handleEmoji}>               
+                            </FontAwesomeIcon>
+                            {showPicker && <EmojiPicker onEmojiClick={onEmojiClick}></EmojiPicker>}
+                        </span>
+                        <input type="text" placeholder="Type a message..." className="send-input" value={data} ref={inputRef} onChange={(e) => {setData(e.target.value)}} />   
+                        <span>
+                            <FontAwesomeIcon icon={faPaperclip} onClick={addFile}></FontAwesomeIcon>
+                            <input className="input-file" type="file" onChange={handleFileChange} ref={fileInputRef}/>
+
+                        </span>             
+                        <button onClick={handleSend} className="send-message">
+                            <FontAwesomeIcon icon={faPaperPlane}></FontAwesomeIcon>
+                        </button>
                     </span>
-
-                    {/* {reaction?.[message?.id] ? <span className="message-reaction">{reaction?.[message?.id]}</span> : null } */}
-                </div>    
-            ))}
-
-            {/* <button onClick={handleClickReaction}>+</button>
-            {showReaction && <EmojiPicker reactionsDefaultOpen={true} onReactionClick={handleReaction}></EmojiPicker>}
-            {reaction ? reaction : ""} */}
-
-
-            <span className="send-group">
-                <span>
-                    <FontAwesomeIcon icon={faFaceSmile} onClick={handleEmoji}>               
-                    </FontAwesomeIcon>
-                    {showPicker && <EmojiPicker onEmojiClick={onEmojiClick}></EmojiPicker>}
-                </span>
-                <input type="text" placeholder="Type a message..." className="send-input" value={data} ref={inputRef} onChange={(e) => {setData(e.target.value)}} />   
-                <span>
-                    <FontAwesomeIcon icon={faPaperclip} onClick={addFile}></FontAwesomeIcon>
-                    <input className="input-file" type="file" onChange={handleFileChange} ref={fileInputRef}/>
-
-                </span>             
-                <button onClick={handleSend} className="send-message">
-                    <FontAwesomeIcon icon={faPaperPlane}></FontAwesomeIcon>
-                </button>
-            </span>
+                </>
+        )}
         </div>
     );
 } 

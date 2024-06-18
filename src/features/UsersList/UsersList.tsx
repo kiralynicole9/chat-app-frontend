@@ -2,10 +2,11 @@ import { User, UserAPI } from "../../API/UserAPI";
 import { useContext, useEffect, useState } from "react";
 import { UserAvatar } from "../../components/UserAvatar/UserAvatar";
 import "./UsersList.css"
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { getWsConnection } from "../../API/WS";
 import { MessageAPI } from "../../API/MessageAPI";
 import { AuthContext } from "../../App";
+import { NewMessageSound } from "../../sounds/NewMessageSound";
 type UsersListProps = {
     fieldName: string,
     secondFieldName: string
@@ -14,7 +15,8 @@ export const UsersList = (props: UsersListProps) => {
     const [users, setUsers] = useState<User[]>([]);
     const [userMessagesCount, setUserMessagesCount] = useState({});
     const {user: loggedInUser} = useContext(AuthContext);
-
+    const {userId} = useParams();
+    const navigate = useNavigate();
 
     const animateFunction = (user) => {
 
@@ -33,12 +35,20 @@ export const UsersList = (props: UsersListProps) => {
     }
 
     useEffect(() => {
+        setUserMessagesCount((prev) => {
+            return {
+                ...prev,
+                [userId]: 0
+            }
+        })
+    }, [userId])
+
+    useEffect(() => {
         const userAPI = new UserAPI();
         userAPI.getUsers().then((res) => {
            return res.json()
         }).then((data) => {
             setUsers(data);
-            console.log(users, "users listtt");
         });   
     }, [])
 
@@ -69,6 +79,30 @@ export const UsersList = (props: UsersListProps) => {
     useEffect(()=>{
         const eventCallback = (e) => {
             const data = JSON.parse(e.data);
+
+            if (data.type === "new_message_count") {
+                NewMessageSound.play();
+                setUserMessagesCount((prev) => {
+                    return {
+                        ...prev,
+                        [data.from_user]: prev[data.from_user] + 1
+                    }
+                });
+
+                setUsers((_users) => {
+                    const updatedUsers = _users.map((user) => {
+                        if(user.id === data.from_user){
+                            return {
+                                ...user,
+                                animate: true
+                            }
+                        }
+                        return user;
+                    })
+                    return updatedUsers;
+                });
+            }
+
             if(data.type !== "users_status_update"){  
                 return;
             }
@@ -125,19 +159,25 @@ export const UsersList = (props: UsersListProps) => {
         return () => {
             getWsConnection().removeEventListener("message", eventCallback);
         }
-    }, [users])
+    }, [users])    
 
-    
+    const getMessagesCount = (userId: number) => {
+        return userMessagesCount[userId] || null;
+    }
 
     return(
         <div>
             <ul className="users-list">
                 {users.map((user) => (
-                    <li class= {`users-list-item${user.active ? " user-active" : ""}${user.animate ? " user-animate" : ""}`} onAnimationEnd={() => animateFunction(user)} >
-                        <Link to={`/${(user as {[key: string]: any}).id}`}>
+                    <li onClick={() => navigate(`/${user.id}`)} className={`users-list-item${user.active ? " user-active" : ""}${user.animate ? " user-animate" : ""}${getMessagesCount(user.id) > 0 || user.id === parseFloat(userId) ? ' highlight': ''}`} onAnimationEnd={() => animateFunction(user)} >
+                        <span>
                             <UserAvatar username={user[props.fieldName]}></UserAvatar>
-                            <span>{user[props.fieldName]} {user[props.secondFieldName]} {user?.status} {userMessagesCount[user.id]}</span>
-                        </Link>
+                            <span>
+                                {user[props.fieldName]} {user[props.secondFieldName]} 
+                                <span className="user-status">{user?.status}</span>
+                            </span>
+                        </span>
+                        {getMessagesCount(user.id) ? <span className="messages-counter">{getMessagesCount(user.id)}</span> : null}
                     </li>
                 ))}
             </ul>

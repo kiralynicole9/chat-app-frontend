@@ -11,8 +11,8 @@ export const  ProfilePopUp = (props) => {
     const [user, setUser] = useState<User>();
     const [status, setStatus] = useState(false);
     const [inputPhone, setInputPhone] = useState(false);
-    const [emoji, setEmoji] = useState(getUserSession().status);
-    const [phone, setPhone] = useState(getUserSession().phone);
+    const [emoji, setEmoji] = useState(getUserSession()?.status);
+    const [phone, setPhone] = useState(getUserSession()?.phone);
 
     useEffect (() => {
         setUser(getUserSession()); 
