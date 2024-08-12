@@ -62,7 +62,22 @@ export abstract class BaseAPI {
                 "Content-Type": "application/json"
             }
         });
+
+        console.log(JSON.stringify(data), "apiiiiii")
         return await res.json();
     }
 
+    protected async updateFile(id: number, data: any){
+        const url = this.createUrl() + "/file/" + id;
+        const res = await fetch(url, {
+            method: 'POST',
+            body: data,
+            headers: {
+                "Content-Type": "multipart/form-data"
+            }
+        });
+
+        console.log(JSON.stringify(data), "apiiiiii")
+        return await res.json();
+    }
 }

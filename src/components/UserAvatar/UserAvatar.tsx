@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react"
 import "./UserAvatar.css"
 type UserAvatarProps = {
-    username: string
+    username: string,
+    image:any
 }
 
 export const UserAvatar = (props: UserAvatarProps) => {
@@ -27,7 +28,7 @@ export const UserAvatar = (props: UserAvatarProps) => {
 
     return (
         <span style={{backgroundColor: color}} className="user-avatar">
-            {props.username?.slice(0,2)}
+            {props.image ? <img className="user-avatar" src={props.image}></img> : props.username?.slice(0,2)}
         </span>
     )
 }

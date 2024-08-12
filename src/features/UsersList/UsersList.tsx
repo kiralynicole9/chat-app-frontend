@@ -7,10 +7,14 @@ import { getWsConnection } from "../../API/WS";
 import { MessageAPI } from "../../API/MessageAPI";
 import { AuthContext } from "../../App";
 import { NewMessageSound } from "../../sounds/NewMessageSound";
+import { Channels } from "../Channels/Channels";
+
 type UsersListProps = {
     fieldName: string,
-    secondFieldName: string
+    secondFieldName: string,
+
 }
+
 export const UsersList = (props: UsersListProps) => {
     const [users, setUsers] = useState<User[]>([]);
     const [userMessagesCount, setUserMessagesCount] = useState({});
@@ -167,11 +171,12 @@ export const UsersList = (props: UsersListProps) => {
 
     return(
         <div>
+            <Channels></Channels>
             <ul className="users-list">
                 {users.map((user) => (
                     <li onClick={() => navigate(`/${user.id}`)} className={`users-list-item${user.active ? " user-active" : ""}${user.animate ? " user-animate" : ""}${getMessagesCount(user.id) > 0 || user.id === parseFloat(userId) ? ' highlight': ''}`} onAnimationEnd={() => animateFunction(user)} >
                         <span>
-                            <UserAvatar username={user[props.fieldName]}></UserAvatar>
+                            <UserAvatar username={user[props.fieldName]} image={user?.img}></UserAvatar>
                             <span>
                                 {user[props.fieldName]} {user[props.secondFieldName]} 
                                 <span className="user-status">{user?.status}</span>

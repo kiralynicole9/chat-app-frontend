@@ -15,7 +15,9 @@ export function Login(){
            const user = await login(data);
            setUser(user);
             setError("");
+            console.log(user)
         }catch(e){
+            console.log(e)
             setError("Invalid login")
         }
     }
@@ -44,11 +46,11 @@ export function Login(){
                 <form onSubmit={handleSubmit}>
                     <div className="form-group">
                         <label htmlFor="email">Email:</label>
-                        <input type="email" onChange={(e) => {addEmail(e.target.value)}} />
+                        <input type="email" id="email" name="email" onChange={(e) => {addEmail(e.target.value)}} />
                     </div>
                     <div className="form-group">
                         <label htmlFor="password">Password:</label>
-                        <input type="password" onChange={(e) => {addPassword(e.target.value)}} />
+                        <input type="password" id="password" name="password" onChange={(e) => {addPassword(e.target.value)}} />
                     </div>
                     <button type="submit">Login</button>
                 </form>

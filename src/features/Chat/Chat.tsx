@@ -13,7 +13,8 @@ import { useState } from "react";
 
 export const Chat = () => {
     const navigate = useNavigate();
-    const { userId } = useParams();
+    const { userId, channelId } = useParams();
+    console.log(channelId, "inchat")
     const [ displayUsersMenu, setDisplayUsersMenu ] = useState(false);
 
     return (
@@ -35,7 +36,8 @@ export const Chat = () => {
             </div>
             <div className="column column-right column-reversed">
                 {userId && <Message></Message>}
-                {!userId && <HomePage></HomePage>}
+                {channelId &&  <Message></Message>}
+                {!userId && !channelId && <HomePage></HomePage>}
             </div>
 
             </div>

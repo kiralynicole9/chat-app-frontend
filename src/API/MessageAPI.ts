@@ -6,6 +6,10 @@ export class MessageAPI extends BaseAPI{
         return await this.getByQueryParams(`from_users=${from}&to_users=${to}`);
     }
 
+    public async getMessagesById(id: string){
+        return this.getById(id);
+    }
+
     public async sendMessages(data: object){
         return this.post(data);
     }

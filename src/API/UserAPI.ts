@@ -27,6 +27,9 @@ export class UserAPI extends BaseAPI {
         return this.patch<User>(parseFloat(id), data);
     }
 
+    public async updateProfileImg(id:number, data:any){
+        return this.updateFile(id, data)
+    }
 
     protected getEndpoint(): string {
         return "users";

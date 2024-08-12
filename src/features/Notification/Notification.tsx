@@ -37,7 +37,8 @@ export const Notification = () => {
             }
         }
         getWsConnection().addEventListener("message",eventCallback)
-        return () => {getWsConnection().removeEventListener("message", eventCallback)}
+        return () => {
+            getWsConnection().removeEventListener("message", eventCallback)}
     }, [])
 
     return(

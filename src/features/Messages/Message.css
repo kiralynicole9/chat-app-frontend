@@ -48,6 +48,11 @@
     color: #8a8aab
 }
 
+.message-call{
+    display: flex;
+    margin-left: 10px;
+}
+
 @media all and (max-width: 700px) {
     .message-intro {
         text-align: left;
@@ -122,4 +127,9 @@
 
 .input-file{
     display: none;
+}
+.message-group{
+    display: flex;
+    flex-direction: column;
+    
 }

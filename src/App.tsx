@@ -8,7 +8,6 @@ import { LoginAPI } from './API/LoginAPI';
 import { Login } from './features/Auth/Login/Login';
 import { User } from './API/UserAPI';
 import { getUserSession, saveUserSession } from './UserSession';
-import { Profile } from './features/Profile/Profile';
 
 
 const authUtilities = {
@@ -54,7 +53,7 @@ function App() {
     } else if (pathname === '/login' || pathname === '/register') {
       navigate('/')
     }
-  }, [user, navigate])
+  }, [user, navigate, pathname])
 
   return (
     <AuthContext.Provider value={{
@@ -65,7 +64,10 @@ function App() {
         <Route path='/register' element={<Register></Register>}></Route> 
         <Route path='/login' element={<Login></Login>}></Route>
         <Route path='/:userId' element = {<Chat></Chat>}></Route>
+        <Route path='/channels/:channelId' element = {<Chat></Chat>}></Route>
         {getUserSession() && <Route path='/' element={<Chat></Chat>}></Route>}
+
+        
 
       </Routes>
 
