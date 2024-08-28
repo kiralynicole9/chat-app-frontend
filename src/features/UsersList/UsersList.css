@@ -50,3 +50,24 @@
     transform: scale(1);
   }
 }
+
+.users-list-search{
+  margin-left: 10px;
+}
+.users-list-input-search{
+  margin-left: 5px;
+  border-radius: 4px;
+  background-color: transparent;
+  border: 0;
+  padding: 5px;
+  color: white;
+  
+}
+
+.users-list-input-search::placeholder{
+  color: lightgray;
+}
+
+
+
+

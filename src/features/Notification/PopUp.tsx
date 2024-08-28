@@ -3,13 +3,16 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect, useState } from "react";
 import {NotificationAPI} from "../../API/NotificationAPI";
 import { Notification } from "../../API/NotificationAPI";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { getUserSession } from "../../UserSession";
+import { ChannelMembersAPI } from "../../API/ChannelMembersAPI";
 
 
 export const PopUp = (props) => {
 
-    const [notifications, setNotifications] = useState({});
+    const [notifications, setNotifications] = useState([]);
+    const [channelNotifications, setChannelNotifications] = useState([]);
+
     const navigate = useNavigate();
 
     const readNotification = (notification: Notification) => {
@@ -19,18 +22,58 @@ export const PopUp = (props) => {
         props.handleNotifications?.();
     }
 
-    useEffect(() => {
+    const readNotificationChannel = (notification: Notification) => {
         const notificationapi = new NotificationAPI();
+        const channelNotifications = notificationapi.makeNotificationRead(notification.id, {has_been_read: 1});
+        navigate(`/channels/${notification.channel_id}`);
+        props.handleNotifications?.();
+    }
 
-        const notifications = notificationapi.getNotifications(getUserSession().id).then((data) => {
-            setNotifications(data);
-            console.log(notifications);
-        });
-    }, [props.show]);
+    useEffect(() => {
+
+        async function fetchNotif(){
+            const notificationapi = new NotificationAPI();
+            const channelMembersApi = new ChannelMembersAPI();
+            
+            const _notifications = await notificationapi.getNotifications(getUserSession().id)
+            console.log(_notifications, "}}")
+            setNotifications(_notifications);
+            
+    
+            const channels = await channelMembersApi.getChannelByMemberId(getUserSession().id);
+            console.log(channels.channels, "notiiifff");
+
+            let arr = [];
+            for(const channel of channels.channels){
+                const _channelNotifications = await notificationapi.getNotificationsChannel(channel.channel_id);
+                console.log(_channelNotifications, "lll")
+
+                arr.push(_channelNotifications.filter(n => n.from_user.id !== getUserSession().id));
+            }
+            console.log(arr.flat(), ":::")
+            
+            setChannelNotifications(arr.flat())
+
+            console.log(channelNotifications, "jiji")  
+
+
+        }
+
+        fetchNotif();
+
+    }, [props.show, getUserSession().id]);
 
     const getNotificationTime = (notification: Notification) => {
         const date = new Date(notification.created_at);
-        return `${date.getHours()}: ${date.getMinutes()}`
+        if(date.getMinutes() < 10 && date.getHours() > 9){
+            return `${date.getHours()}: 0${date.getMinutes()}`
+        }else if(date.getMinutes() > 9 && date.getHours() > 9){
+            return `${date.getHours()}: ${date.getMinutes()}`
+        }else if(date.getMinutes() < 10 && date.getHours() < 10){
+            return `0${date.getHours()}: 0${date.getMinutes()}`
+        }else{
+            return `0${date.getHours()}: ${date.getMinutes()}`
+        }
     }
 
     if(!props.show){
@@ -43,11 +86,11 @@ export const PopUp = (props) => {
                     <span className="popup-header-title">Notifications</span>
                 </div>
                 <div className="popup-content">
-
-                    {!notifications?.length && (
+                    
+                    {!notifications?.length && !channelNotifications.length && (
                         <div className="popup-row-content">
                             <p className="popup-row-description">
-                                No new notifications
+                                No new notifications 
                             </p>
                         </div>
                     )}
@@ -57,9 +100,11 @@ export const PopUp = (props) => {
                                 <p className="popup-row-title">
                                     New message {notification.id_message}
                                 </p>
+
                                 <p className="popup-row-description">
-                                    {notification.from_user.firstname} sent you a new message
+                                    {notification.from_user.firstname} sent you a new message.
                                 </p>
+                                
                             </div>
                             <div className="popup-row-footer">
                                 <div className="popup-time">
@@ -68,6 +113,26 @@ export const PopUp = (props) => {
 
                             </div>
                             
+                        </div>
+                    ))}
+                    
+                    {channelNotifications.map((channelNotification: Notification) => (
+                        <div className="popup-row" onClick={() => readNotificationChannel(channelNotification)}>
+                            <div className="popup-row-content">
+                                <p className="popup-row-title">
+                                    New message {channelNotification.id_message}
+                                </p>
+
+                                <p className="popup-row-description">
+                                    {channelNotification?.from_user.firstname} sent a new message in channel {channelNotification.channel_id}.
+                                </p>
+                            </div>
+                            <div className="popup-row-footer">
+                                <div className="popup-time">
+                                    {getNotificationTime(channelNotification)}
+                                </div>
+                            </div>
+
                         </div>
                     ))}
                 </div>

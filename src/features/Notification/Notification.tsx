@@ -6,6 +6,7 @@ import './Notification.css'
 import { getWsConnection } from '../../API/WS.ts';
 import { getUserSession } from '../../UserSession.ts';
 import { NotificationAPI } from '../../API/NotificationAPI.ts';
+import { ChannelMembersAPI } from '../../API/ChannelMembersAPI.ts';
 
 export const Notification = () => {
     const [showPopUp, setShowPopUp] = useState(false); 
@@ -17,25 +18,40 @@ export const Notification = () => {
     }
 
     useEffect(() => {
-        const notificationapi = new NotificationAPI();
+        const fetchNotif = async() => {
+            const notificationapi = new NotificationAPI();
+            const channelMembersApi = new ChannelMembersAPI();
+    
+            const notifications = await notificationapi.getNotifications(getUserSession().id)
 
-        const notifications = notificationapi.getNotifications(getUserSession().id).then((data) => {
-            setAmount(data.length);
-            console.log(notifications);
-        });
+            const channels = await channelMembersApi.getChannelByMemberId(getUserSession().id);
 
-        const eventCallback = (e) => {
-            console.log(e);
-            const data = JSON.parse(e.data);
-            if(data.type === "new_notification"){  
-                setAmount((_amount) => _amount + 1);
-                return;
+            let sum = notifications.length;
+            for(const channel of channels.channels){
+                const _channelNotifications = await notificationapi.getNotificationsChannel(channel.channel_id);
+                sum+=_channelNotifications.filter(n => n.from_user.id !== getUserSession().id).length;
             }
-            if(data.type === "read_notification"){
-                setAmount((_amount) => _amount - 1);
-                return;
-            }
+
+            setAmount(sum);
+
         }
+    
+            const eventCallback = (e) => {
+                console.log(e);
+                const data = JSON.parse(e.data);
+                if(data.type === "new_notification" || data.type === "new_channel_notification"){  
+                    setAmount((_amount) => _amount + 1);
+                    return;
+                }
+                if(data.type === "read_notification"){
+                    setAmount((_amount) => _amount - 1);
+                    return;
+                }
+            }
+        
+
+        fetchNotif();
+
         getWsConnection().addEventListener("message",eventCallback)
         return () => {
             getWsConnection().removeEventListener("message", eventCallback)}

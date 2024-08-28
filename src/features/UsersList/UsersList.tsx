@@ -8,6 +8,8 @@ import { MessageAPI } from "../../API/MessageAPI";
 import { AuthContext } from "../../App";
 import { NewMessageSound } from "../../sounds/NewMessageSound";
 import { Channels } from "../Channels/Channels";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 
 type UsersListProps = {
     fieldName: string,
@@ -17,10 +19,12 @@ type UsersListProps = {
 
 export const UsersList = (props: UsersListProps) => {
     const [users, setUsers] = useState<User[]>([]);
+    const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
     const [userMessagesCount, setUserMessagesCount] = useState({});
     const {user: loggedInUser} = useContext(AuthContext);
     const {userId} = useParams();
     const navigate = useNavigate();
+    const [searchTerm, setSearchTerm] = useState("");
 
     const animateFunction = (user) => {
 
@@ -53,6 +57,7 @@ export const UsersList = (props: UsersListProps) => {
            return res.json()
         }).then((data) => {
             setUsers(data);
+            setFilteredUsers(data);
         });   
     }, [])
 
@@ -122,6 +127,7 @@ export const UsersList = (props: UsersListProps) => {
                 }
                 return {...user, animate:false};
             });
+            setFilteredUsers(updatedUsers); //
             setUsers(updatedUsers)
         }
         getWsConnection().addEventListener("message", eventCallback);
@@ -154,6 +160,7 @@ export const UsersList = (props: UsersListProps) => {
                     }
                     return {...user, animate:false};
                 });
+                setFilteredUsers(updatedUsers); //
                 return updatedUsers;
             })
         }
@@ -163,7 +170,20 @@ export const UsersList = (props: UsersListProps) => {
         return () => {
             getWsConnection().removeEventListener("message", eventCallback);
         }
-    }, [users])    
+    }, [users])  
+    
+    useEffect(() => {
+        if(!searchTerm){
+            setFilteredUsers(users);
+        }else{
+            setFilteredUsers(users.filter((user) => {
+                return (
+                    user[props.fieldName].toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    user[props.secondFieldName].toLowerCase().includes(searchTerm.toLowerCase())
+                )
+            }))
+        }
+    }, [searchTerm, users])
 
     const getMessagesCount = (userId: number) => {
         return userMessagesCount[userId] || null;
@@ -171,9 +191,13 @@ export const UsersList = (props: UsersListProps) => {
 
     return(
         <div>
+            <div className="users-list-search">
+                <FontAwesomeIcon icon={faMagnifyingGlass}></FontAwesomeIcon>
+                <input className="users-list-input-search" type="text" placeholder="Search..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+            </div>
             <Channels></Channels>
             <ul className="users-list">
-                {users.map((user) => (
+                {filteredUsers.map((user) => (
                     <li onClick={() => navigate(`/${user.id}`)} className={`users-list-item${user.active ? " user-active" : ""}${user.animate ? " user-animate" : ""}${getMessagesCount(user.id) > 0 || user.id === parseFloat(userId) ? ' highlight': ''}`} onAnimationEnd={() => animateFunction(user)} >
                         <span>
                             <UserAvatar username={user[props.fieldName]} image={user?.img}></UserAvatar>
