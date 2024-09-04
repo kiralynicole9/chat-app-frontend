@@ -83,7 +83,6 @@ export const ChannelModal = ({isOpen, onRequestClose}) => {
                             ))}
                         </span>
                     </div>
-                    <div>{members}</div>
                     <div className="channel-modal-buttons">
                         <button className="channel-button-create" onClick={handleChannels}>Create Channel</button>
                         <button type="button" onClick={onRequestClose} className="channel-button-create">Cancel</button>

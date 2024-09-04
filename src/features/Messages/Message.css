@@ -138,7 +138,29 @@
     
 }
 
-.channel-members{
-    font-size: 14px;
-    list-style: none;
+.message-row{
+    margin: 5px;
 }
+
+.message-reactions{
+    margin-left: 30px;
+}
+
+.reaction{
+    margin: 2px;
+    background-color: #272738;
+    border-radius: 10px;
+    padding: 5px;
+    font-size: 12px;
+    position: relative;
+}
+
+.reaction:hover::after{
+    content: attr(title);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    
+}
+

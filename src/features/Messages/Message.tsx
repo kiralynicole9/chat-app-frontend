@@ -2,21 +2,23 @@ import { MessageAPI } from "../../API/MessageAPI";
 import { useContext, useRef, useState } from "react";
 import { useEffect } from "react";
 import "./Message.css"
-import { useParams } from "react-router-dom";
+import { json, useParams } from "react-router-dom";
 import { UserAPI } from "../../API/UserAPI";
 import { User } from "../../API/UserAPI";
 import { AuthContext } from "../../App";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBars, faFaceSmile, faHeadphones, faPaperPlane, faPaperclip, faPhone, faPlane } from "@fortawesome/free-solid-svg-icons";
 import { UserAvatar } from "../../components/UserAvatar/UserAvatar";
-import EmojiPicker, { EmojiClickData } from "emoji-picker-react";
+import EmojiPicker, { Emoji, EmojiClickData } from "emoji-picker-react";
 import { getWsConnection } from "../../API/WS";
 import { ChannelAPI } from "../../API/ChannelAPI";
 import { ChannelMessageAPI } from "../../API/ChannelMessageAPI";
-import { ChannelMembersAPI } from "../../API/ChannelMembersAPI";
 import { VideoCall } from "../Call/VideoCall";
 import { IncomingCallPopUp } from "../Call/IncomingCallPopUp";
 import { UserSettings } from "../UserSettings/UserSettings";
+import { ChannelSettings } from "../ChannelSettings/ChannelSettings";
+import { ReactionAPI } from "../../API/ReactionAPI";
+import { ChannelMembersAPI } from "../../API/ChannelMembersAPI";
 
 type MessageList = {
     fieldName: string,
@@ -30,21 +32,20 @@ export const Message = () => {
     const {userId, channelId} = useParams();
     const [user, setUser] = useState<User>();
     const {user: loggedInUser} = useContext(AuthContext);
-    const [emoji, setEmoji] = useState(null);
     const [showPicker, setShowPicker] = useState(false);
-    const [showReaction, setShowReaction] = useState(null);
-    const [reaction, setReaction] = useState(null);
+    const [reaction, setReaction] = useState([]);
+    const [channelMembers, setChannelMembers] = useState([]);
     const [channel, setChannel] = useState("");
     const[channelMessages, setChannelMessages] = useState([]);
     const [peerConnection, setPeerConnection] = useState<RTCPeerConnection | null>(null);
     const [localStream, setLocalStream] = useState<MediaStream | null>(null);
     const [remoteStream, setRemoteStream] = useState<MediaStream | null> (null);
     const [isCallActive, setIsCallActive] = useState(false);
-    const [channelMembers, setChannelMembers] = useState([]);
     const [showIncomingCall, setShowIncomingCall] = useState(false);
     const [iceCandidateQueue, setIceCandidateQueue] = useState([]);
     const [isCallEnded, setIsCallEnded] = useState(false);
     const [inSettings, setInSettings] = useState(false);
+    const [activeEmojiPicker, setActiveEmojiPicker] = useState(null);
 
 
     const iceServers = {
@@ -111,6 +112,10 @@ export const Message = () => {
                 const message = await messageapi.getMessagesById(channelMessageId.message_id as string)
                 console.log(message, "fetchMessagesss")
 
+                messageapi.updateMessage(message.id, 
+                    {has_been_read: true}
+                )
+
                 if(message.in_channel){
 
                     let _user;
@@ -131,15 +136,13 @@ export const Message = () => {
             }
 
             setChannelMessages(fetchedMessages)
-
-            console.log(fetchedMessages, "123")
-            console.log(channelMessages, "why")
         }
         
         fetchMessages();
 
         const eventCallback = async(e) => {
             const res = JSON.parse(e.data);
+            const messageapi = new MessageAPI();
             if(res.type === "new_channel_message" && res.message.in_channel && res.channel_id === channelId){
                 let _user;
                 if(usersMap.has(res.message.from_users)){
@@ -148,6 +151,10 @@ export const Message = () => {
                     _user = await userapi.getUser(res.message.from_users);
                     usersMap.set(res.message.from_users, _user);
                 }
+                
+                messageapi.updateMessage(res.message.id, {
+                    has_been_read: true
+                })
                 setChannelMessages((prev) => [...prev, 
                     {...res.message,
                     _user}]);
@@ -195,33 +202,6 @@ export const Message = () => {
         fetchChannels();
 
     }, [channelId])
-
-    useEffect(() => {
-        if(!channelId){
-            return;
-        }
-        const fetchMembers = async() => {
-            const channelMembersApi = new ChannelMembersAPI();
-            const userapi = new UserAPI();
-            const members = await channelMembersApi.getMembersByChannelId(channelId);
-            console.log(members.members, "channeeel memberss");
-
-            let membersArr = []
-            for(const member of members.members){
-                console.log(member, "ppp");
-                const data = await userapi.getUser(member.user_id);
-                console.log(data, "nimi");
-                const name = data.firstname + " " + data.lastname;
-                console.log(name, "ki");
-                membersArr.push(name);
-            }
-
-            setChannelMembers(membersArr);
-        }
-
-        fetchMembers();
-    }, [channelId])
-
    
 
     useEffect(() => {
@@ -229,11 +209,11 @@ export const Message = () => {
 
         const eventCallback = async (e) => {
             const res = JSON.parse(e.data);
-            console.log(res, "parsedData in front")
+            
 
             switch(res.type){
                 case "offer": 
-                console.log("are u here", loggedInUser.id)
+                
                     if(res.to_user == loggedInUser?.id){
                         setShowIncomingCall(true);
 
@@ -358,6 +338,100 @@ export const Message = () => {
     }
     }, [loggedInUser?.id, peerConnection])
 
+    useEffect(() => {
+        
+        const fetchReactions = async() => {
+            const reactionapi = new ReactionAPI();
+            const data = await reactionapi.getReactions();
+            const reactions = await data.json();
+            //console.log(reactions, "\\");
+            //setReaction(reactions);
+
+            const objs = {}
+
+            reactions.forEach(r => {
+                const key = `${r.message_id}-${r.reaction}`;
+                if(!objs[key]){
+                    objs[key] = {
+                        count: 0,
+                        users: [],
+                        emoji: r.reaction
+                    }
+                }
+
+                if(!objs[key].users.includes(r.user_id)){
+                    objs[key].users.push(r.user_id);
+                    objs[key].count++;
+                }
+            })
+            setReaction(objs);
+        }
+
+        fetchReactions();
+    }, [])
+
+    useEffect(() => {
+        const eventCallBack = (e) => {
+            const res = JSON.parse(e.data);
+            console.log(res, "\\//")
+            if (res.type != "new_reaction"){
+                return;
+            }
+            setReaction((prev) => {
+                const key = `${res.createdReaction.message_id}-${res.createdReaction.reaction}`;
+                const reactionContent = prev[key] || {count: 0, users: [], emoji: res.createdReaction.reaction};
+
+                if (!reactionContent.users.includes(res.createdReaction.user_id)){
+                    return {
+                        ...prev,
+                        [key]: {
+                            ...reactionContent,
+                            count: reactionContent.count + 1,
+                            users: [...reactionContent.users, res.createdReaction.user_id]
+                        }
+                    }
+                }
+
+                return prev;
+
+            })
+            
+
+        }
+
+        getWsConnection().addEventListener("message", eventCallBack);
+
+        return () => {
+            getWsConnection().removeEventListener("message", eventCallBack);
+        }
+    }, [loggedInUser?.id])
+
+    useEffect(() => {
+        const fetchChannelMembers = async() => {
+            const channelMembersAPI = new ChannelMembersAPI();
+            const userapi = new UserAPI();
+            const members = await channelMembersAPI.getMembersByChannelId(channelId as string);
+            console.log(members, "aaa")
+
+            let arr = [];
+            for(const member of members.members){
+                const user = await userapi.getUser(member.user_id);
+                arr.push({
+                    user_id: member.user_id,
+                    user_firstname: user.firstname
+                })
+            }
+
+            console.log(arr, "--")
+            setChannelMembers([...arr]);
+
+        }
+
+        fetchChannelMembers();
+        console.log(channelMembers, "aaaa")
+
+    }, [channelId, loggedInUser?.id])
+
 
     function handleSend(){
         console.log(data);
@@ -422,6 +496,11 @@ export const Message = () => {
         
     }
 
+    const handleToggleEmojiPicker = (messageId) => {
+        setActiveEmojiPicker(prevId => prevId === messageId ? null : messageId);
+
+    }
+
     const handleEmoji = () => {    
         setShowPicker(!showPicker);      
     }
@@ -446,16 +525,76 @@ export const Message = () => {
         setShowPicker(false);
     }
 
-    const handleClickReaction = (messageId) => {
-        setShowReaction(messageId);
+
+    const handleReaction = async(_reaction) => {
+        console.log(_reaction.emoji, "__")
+        const reactionapi = new ReactionAPI();
+        const reactionKey = `${activeEmojiPicker}-${_reaction.emoji}`
+        let currentReaction = reaction[reactionKey];
+
+        if(currentReaction && currentReaction.users.includes(loggedInUser?.id)){
+            return;
+        }
+
+        let newReaction;
+        if(userId){
+            newReaction = {
+                to_user: userId,
+                message_id: activeEmojiPicker,
+                user_id: loggedInUser?.id,
+                reaction: _reaction.emoji
+            }
+        }else if(channelId){
+            newReaction = {
+                channel_id: channelId,
+                message_id: activeEmojiPicker,
+                user_id: loggedInUser?.id,
+                reaction: _reaction.emoji
+            }
+        }
+
+        const res = await reactionapi.createReaction(newReaction);
+
+        const data = await res.json();
+
+        if(data){
+            const updatedReaction = {
+                ...currentReaction,
+                count: currentReaction ? currentReaction.count + 1 : 1,
+                users: currentReaction ? [...currentReaction.users, loggedInUser?.id] : [loggedInUser?.id],
+                emoji: _reaction.emoji
+            }
+
+            setReaction(prev => ({
+                ...prev,
+                [reactionKey]: updatedReaction
+            }));
+        }
+    
+        setActiveEmojiPicker(null);
+        console.log(activeEmojiPicker)
+
+        // const existingReaction = reaction.find(r => r.message_id == activeEmojiPicker &&
+        //     r.user_id == loggedInUser?.id &&
+        //     r.reaction == _reaction.emoji
+        // );
+
+        // if(!existingReaction){
+        //     const res = await reactionapi.createReaction({
+        //         message_id: activeEmojiPicker,
+        //         user_id: loggedInUser?.id,
+        //         reaction: _reaction.emoji
+        //     })
+        //     const data = await res.json()
+    
+        //     setReaction((prev) => [
+        //         ...prev,
+        //         data
+        //     ]);
+        // }
+
     }
 
-    const handleReaction = (reaction, messageId) => {
-        console.log("reactionn")
-        setReaction((prev) => ({...prev, [messageId]: reaction.emoji}));
-        setShowReaction(null);
-
-    }
 
     const addFile = () => {
         fileInputRef.current.click();
@@ -512,6 +651,88 @@ export const Message = () => {
             setRemoteStream(remoteStream);
         }
     }
+
+    const handleClickReaction = async(emoji, messageId) => {
+        const reactionapi = new ReactionAPI();
+
+        const key = `${messageId}-${emoji}`;
+        let currentReaction = reaction[key];
+
+        if(currentReaction && currentReaction.users.includes(loggedInUser?.id)){
+            return;
+        }
+
+        let newReaction;
+        if(userId){
+            newReaction = {
+                to_user: userId,
+                message_id: messageId,
+                user_id: loggedInUser?.id,
+                reaction: emoji
+            }
+
+        }else if(channelId){
+            newReaction = {
+                channel_id: channelId,
+                message_id: messageId,
+                user_id: loggedInUser?.id,
+                reaction: emoji
+            }
+        }
+
+
+        const res = await reactionapi.createReaction(newReaction);
+        const data = await res.json();
+
+        if(data){
+            const updatedReaction = {
+                ...currentReaction,
+                count: currentReaction ? currentReaction.count+1 : 1,
+                users: currentReaction ? [...currentReaction.users, loggedInUser?.id] : loggedInUser?.id,
+                emoji: emoji
+            }
+
+            setReaction(prev => ({
+                ...prev,
+                [key]: updatedReaction
+            }))
+        }
+    }
+
+    const renderReactions = (messageId) => {
+        const userapi = new UserAPI();
+        if(userId){
+            return Object.entries(reaction).map(([key,value]) => {
+                if(key.startsWith(messageId + '-')){
+                    const userNames = value.users.map(id => 
+                        id == userId ? user?.firstname : loggedInUser?.firstname
+                    );
+    
+                    const names = userNames.join(', ')
+                    console.log(names, "?")
+                    return <span key={key} onClick={() => handleClickReaction(value.emoji, messageId)} className="reaction" title={names} >{value.emoji} {value.count}</span>
+                }
+            })
+        }else if(channelId){
+            return Object.entries(reaction).map( ([key,value]) => {
+                if(key.startsWith(messageId + "-")) {
+
+                    console.log(channelMembers, ">>>")
+
+                    const userNames = value.users.map(id => {
+                        const member = channelMembers.find(member => member.user_id == id);
+                        return member?.user_firstname
+                    }
+                    );
+    
+                    const names = userNames.join(', ')
+                    console.log(names, "?")
+                    return <span key={key} onClick={() => handleClickReaction(value.emoji, messageId)} className="reaction" title={names}>{value.emoji} {value.count}</span>
+                }
+            })
+        }
+    }
+
 
     const handleEndCall = () => {
         if(isCallEnded) return;
@@ -573,7 +794,7 @@ export const Message = () => {
            
                     <div className="message-content">
                         {messages.map((message) => (
-                            <div >
+                            <div className="message-row">
                                 <span className="message">
                                     {message.from_users == userId && <>
                                         <span className="message-user">
@@ -588,6 +809,13 @@ export const Message = () => {
                                         <span className="message-text" dangerouslySetInnerHTML={{__html: message["message"]}} />
                                     </>}
                                 </span>
+                                <span onClick={() => handleToggleEmojiPicker(message.id)}>+</span>
+                                {/* {reaction.map((r) => (
+                                    r.message_id == message.id ? <span>{r?.reaction}</span> : ""
+
+                                ))} */}
+                                <div className="message-reactions" key={message.id}>{renderReactions(message.id)}</div>
+                                {activeEmojiPicker === message.id && <EmojiPicker reactionsDefaultOpen={true} onReactionClick={handleReaction} onEmojiClick={handleReaction}/>}
                             </div>    
                         ))}
                     </div>
@@ -621,12 +849,8 @@ export const Message = () => {
                             <FontAwesomeIcon  onClick={handleSettings} icon={faBars} className="message-call-icon"></FontAwesomeIcon>
                         </span>
                         {/* {isCallActive && <VideoCall localStream={localStream} remoteStream={remoteStream}  ></VideoCall>} */}
+                        {inSettings && <ChannelSettings channelId={channelId}></ChannelSettings>}
                         <h3>{channel}</h3>
-                        <ul>
-                            {channelMembers.map((member) => (
-                                <li className="channel-members">{member}</li>
-                            ))}
-                        </ul>
                         
                     </div>
 
@@ -647,6 +871,15 @@ export const Message = () => {
                                         <span className="message-text" dangerouslySetInnerHTML={{__html: message["message"]}} />
                                     </>}
                                 </span>
+
+                                <span onClick={() => handleToggleEmojiPicker(message.id)}>+</span>
+
+                                {/* {reaction.map((r) => (
+                                    r.message_id == message.id ? <span>{r?.reaction}</span> : ""
+
+                                ))} */}
+                                <div className="message-reactions" key={message.id}>{renderReactions(message.id)}</div>
+                                {activeEmojiPicker === message.id && <EmojiPicker reactionsDefaultOpen={true} onReactionClick={handleReaction} onEmojiClick={handleReaction}/>}
                             </div>    
                         ))}
                     </div>

@@ -4,21 +4,21 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    width: 90vw;
+    width: 70vw;
     height: 100vh;
 
 }
 .video-section{
-    width: 1000px;
+    max-width: 1000px;
+    width: 90%;
     display: flex;
     justify-content: space-between;
     position: relative;
     height: auto;
 }
 .video-component{
-    width:500px;
+    width:50%;
     height: auto;
-    background-color: black;
     display: flex;
     justify-content: space-between;
 }
@@ -27,7 +27,7 @@
     position: absolute;
     bottom: 10px;
     left: 10px;
-    color: white;
+    color: lightgray;
     cursor: pointer;
 }
 .camera{

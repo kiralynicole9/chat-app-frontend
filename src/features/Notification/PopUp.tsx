@@ -18,6 +18,7 @@ export const PopUp = (props) => {
     const readNotification = (notification: Notification) => {
         const notificationapi = new NotificationAPI();
         const notifications = notificationapi.makeNotificationRead(notification.id, {has_been_read: 1});
+        setNotifications((prev) => prev.filter((n) => n.id != notification.id))
         navigate(`/${notification.from_user.id}`);
         props.handleNotifications?.();
     }
@@ -25,12 +26,12 @@ export const PopUp = (props) => {
     const readNotificationChannel = (notification: Notification) => {
         const notificationapi = new NotificationAPI();
         const channelNotifications = notificationapi.makeNotificationRead(notification.id, {has_been_read: 1});
+        setChannelNotifications((prev) => prev.filter((n) => n.id != notification.id))
         navigate(`/channels/${notification.channel_id}`);
         props.handleNotifications?.();
     }
 
     useEffect(() => {
-
         async function fetchNotif(){
             const notificationapi = new NotificationAPI();
             const channelMembersApi = new ChannelMembersAPI();
@@ -48,7 +49,7 @@ export const PopUp = (props) => {
                 const _channelNotifications = await notificationapi.getNotificationsChannel(channel.channel_id);
                 console.log(_channelNotifications, "lll")
 
-                arr.push(_channelNotifications.filter(n => n.from_user.id !== getUserSession().id));
+                arr.push(_channelNotifications.filter(n => n.from_user.id !== getUserSession().id && !n.has_been_read));
             }
             console.log(arr.flat(), ":::")
             
@@ -58,6 +59,7 @@ export const PopUp = (props) => {
 
 
         }
+
 
         fetchNotif();
 
