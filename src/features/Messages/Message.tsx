@@ -19,6 +19,7 @@ import { UserSettings } from "../UserSettings/UserSettings";
 import { ChannelSettings } from "../ChannelSettings/ChannelSettings";
 import { ReactionAPI } from "../../API/ReactionAPI";
 import { ChannelMembersAPI } from "../../API/ChannelMembersAPI";
+import { MessagesStatusAPI } from "../../API/MessagesStatusAPI";
 
 type MessageList = {
     fieldName: string,
@@ -463,6 +464,8 @@ export const Message = () => {
 
     const handleSendInChannel = async () => {
         const channelMessageApi = new ChannelMessageAPI();
+        const messageStatusAPI = new MessagesStatusAPI();
+
         const messageApi = new MessageAPI();
         const message = {
             "from_users": loggedInUser?.id,
@@ -493,6 +496,17 @@ export const Message = () => {
             channel_id: channelId,
             message_id: idMessage.id
         })
+
+        for(const channelMember of channelMembers){
+            if(channelMember.user_id != loggedInUser?.id){
+                await messageStatusAPI.createMessageStatus({
+                    message_id: idMessage.id,
+                    user_id: channelMember.user_id
+                })
+
+            }
+
+        }
         
     }
 
@@ -824,7 +838,7 @@ export const Message = () => {
                         <span>
                             <FontAwesomeIcon icon={faFaceSmile} onClick={handleEmoji}>               
                             </FontAwesomeIcon>
-                            {showPicker && <EmojiPicker onEmojiClick={onEmojiClick}></EmojiPicker>}
+                            {showPicker && <EmojiPicker className="emoji-picker" onEmojiClick={onEmojiClick}></EmojiPicker>}
                         </span>
                         <input type="text" placeholder="Type a message..." className="send-input" value={data} ref={inputRef} onChange={(e) => {setData(e.target.value)}} />   
                         <span>
@@ -889,7 +903,7 @@ export const Message = () => {
                             <span>
                                 <FontAwesomeIcon icon={faFaceSmile} onClick={handleEmoji}>               
                                 </FontAwesomeIcon>
-                                {showPicker && <EmojiPicker onEmojiClick={onEmojiClick}></EmojiPicker>}
+                                {showPicker && <EmojiPicker className="emoji-picker" onEmojiClick={onEmojiClick}></EmojiPicker>}
                             </span>
                             <input type="text" placeholder="Type a message..." className="send-input" value={data} ref={inputRef} onChange={(e) => {setData(e.target.value)}} />   
                             <span>

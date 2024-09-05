@@ -164,3 +164,8 @@
     
 }
 
+.emoji-picker{
+    z-index: 99999;
+    bottom: 100%;
+}
+

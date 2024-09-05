@@ -11,6 +11,7 @@
 }
 
 .channel-modal{
+    position: absolute;
     max-width: 300px;
     max-height: 600px;
     background-color: rgb(229, 225, 236);
@@ -63,8 +64,28 @@
     
 }
 
-.channel-list{
+.channels-list{
+    margin: 0;
+    padding: 0;
+
+}
+
+.channel-list-item{
     list-style-type: none;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    padding: 5px 15px;
+    position: relative;
+    color: #fff;
+    justify-content: space-between;
+ 
 }
+
+.channel-list-item .user-avatar{
+    font-size: 18px;
+    font-weight: bold;
+}
+
 

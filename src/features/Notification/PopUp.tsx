@@ -24,8 +24,8 @@ export const PopUp = (props) => {
     }
 
     const readNotificationChannel = (notification: Notification) => {
-        const notificationapi = new NotificationAPI();
-        const channelNotifications = notificationapi.makeNotificationRead(notification.id, {has_been_read: 1});
+        // const notificationapi = new NotificationAPI();
+        // const channelNotifications = notificationapi.makeNotificationRead(notification.id, {has_been_read: 1});
         setChannelNotifications((prev) => prev.filter((n) => n.id != notification.id))
         navigate(`/channels/${notification.channel_id}`);
         props.handleNotifications?.();
@@ -48,8 +48,8 @@ export const PopUp = (props) => {
             for(const channel of channels.channels){
                 const _channelNotifications = await notificationapi.getNotificationsChannel(channel.channel_id);
                 console.log(_channelNotifications, "lll")
-
-                arr.push(_channelNotifications.filter(n => n.from_user.id !== getUserSession().id && !n.has_been_read));
+                //has_been_read
+                arr.push(_channelNotifications.filter(n => n.from_user.id !== getUserSession().id));
             }
             console.log(arr.flat(), ":::")
             

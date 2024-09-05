@@ -6,10 +6,12 @@ import { getUserSession } from "../../UserSession";
 import { ChannelMembersAPI } from "../../API/ChannelMembersAPI";
 import { getWsConnection } from "../../API/WS";
 import { useNavigate } from "react-router-dom";
+import { UserAvatar } from "../../components/UserAvatar/UserAvatar";
 
-export const Channels = () => {
+export const Channels = ({searchTerm}) => {
     const [isOpen, setIsOpen] = useState(false);
     const [channels, setChannels] = useState([]);
+    const [filteredChannels, setFilteredChannels] = useState([]);
     const navigate = useNavigate();
 
     const handleModal = () => {
@@ -41,6 +43,7 @@ export const Channels = () => {
             }
 
             setChannels(newChannels);
+            setFilteredChannels(newChannels);
             
         }
         fetchChannels();
@@ -49,6 +52,7 @@ export const Channels = () => {
             const res = JSON.parse(e.data);
             if(res.type === "new_channel"){
                 setChannels((prev) => [...prev, res.channel])
+                setFilteredChannels((prev) => [...prev, res.channel])
             }
 
         }
@@ -59,17 +63,36 @@ export const Channels = () => {
     
     }, [])
 
+    useEffect(() => {
+        if(!searchTerm){
+            setFilteredChannels(channels);
+        }else{
+            setFilteredChannels(channels.filter((channel) => {
+                return (
+                    channel?.[0]?.name.toLowerCase().includes(searchTerm.toLowerCase())
+                )
+            }))
+        }
+    }, [searchTerm, channels])
+
+
     return (
         <div>
-            <span>Channels </span>
+            <span className="dm">Channels </span>
             <button className="channel-button" onClick={handleModal}>+</button>
             <ChannelModal isOpen={isOpen} onRequestClose={handleClose}></ChannelModal>
-            {channels.map((channel) => (
-                <li className = "channel-list" onClick={() => navigate(`/channels/${channel[0]?.id}`)}>
-                    <div ># {channel?.[0]?.name}</div>
+            <ul className="channels-list">
+                {filteredChannels.map((channel) => (
+                    <li className = "channel-list-item" onClick={() => navigate(`/channels/${channel[0]?.id}`)}>
+                        <span>
+                            <UserAvatar username="#"></UserAvatar>
+                            <span>{channel?.[0]?.name}</span>
+                        </span>
 
-                </li>
-            ))}
+                    </li>
+                ))}
+
+            </ul>
 
         
         </div>

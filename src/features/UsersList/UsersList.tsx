@@ -195,7 +195,8 @@ export const UsersList = (props: UsersListProps) => {
                 <FontAwesomeIcon icon={faMagnifyingGlass}></FontAwesomeIcon>
                 <input className="users-list-input-search" type="text" placeholder="Search..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
             </div>
-            <Channels></Channels>
+            <Channels searchTerm={searchTerm}></Channels>
+            <div className="dm">Direct messages</div>
             <ul className="users-list">
                 {filteredUsers.map((user) => (
                     <li onClick={() => navigate(`/${user.id}`)} className={`users-list-item${user.active ? " user-active" : ""}${user.animate ? " user-animate" : ""}${getMessagesCount(user.id) > 0 || user.id === parseFloat(userId) ? ' highlight': ''}`} onAnimationEnd={() => animateFunction(user)} >
