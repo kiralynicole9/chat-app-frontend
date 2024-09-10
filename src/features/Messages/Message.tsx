@@ -20,6 +20,7 @@ import { ChannelSettings } from "../ChannelSettings/ChannelSettings";
 import { ReactionAPI } from "../../API/ReactionAPI";
 import { ChannelMembersAPI } from "../../API/ChannelMembersAPI";
 import { MessagesStatusAPI } from "../../API/MessagesStatusAPI";
+import { getUserSession } from "../../UserSession";
 
 type MessageList = {
     fieldName: string,
@@ -103,6 +104,8 @@ export const Message = () => {
         const fetchMessages = async () => {
             const channelMessageApi = new ChannelMessageAPI();
             const messageapi = new MessageAPI();
+            const messagesStatusAPI = new MessagesStatusAPI();
+
             const channelMessagesIds = await channelMessageApi.getMessagesIds(channelId as string);
             console.log(channelMessagesIds.channelMessages, ";;")
 
@@ -113,14 +116,25 @@ export const Message = () => {
                 const message = await messageapi.getMessagesById(channelMessageId.message_id as string)
                 console.log(message, "fetchMessagesss")
 
-                messageapi.updateMessage(message.id, 
-                    {has_been_read: true}
-                )
+                // messageapi.updateMessage(message.id, 
+                //     {has_been_read: true}
+                // )
 
+                // for(const channelMember of channelMembers){
+                //     if(channelMember.user_id != loggedInUser?.id){
+                        // await messagesStatusAPI.createMessageStatus({
+                        //     message_id: message.id,
+                        //     user_id: channelMember.user_id
+                        // })
+        
+                //     }
+                //}
+
+                
                 if(message.in_channel){
-
+                    
                     let _user;
-
+                    
                     if(usersMap.has(message.from_users)){
                         _user = usersMap.get(message.from_users);
                         console.log(_user, "user from map")
@@ -128,12 +142,20 @@ export const Message = () => {
                         _user = await userapi.getUser(message.from_users)
                         usersMap.set(message.from_users, _user);
                     }
-
+                    
                     fetchedMessages.push({
                         ...message,
                         _user
                     });
+
+                    console.log(_user.id, "...")
+                    if(loggedInUser?.id != _user.id){
+                        const messageStatus = await messagesStatusAPI.updateMessageStatus(message.id, getUserSession()?.id, {has_been_read: true})
+                        console.log(messageStatus, "111");
+                    }
                 }
+                
+                
             }
 
             setChannelMessages(fetchedMessages)
@@ -144,6 +166,8 @@ export const Message = () => {
         const eventCallback = async(e) => {
             const res = JSON.parse(e.data);
             const messageapi = new MessageAPI();
+            const messagesStatusAPI = new MessagesStatusAPI();
+            
             if(res.type === "new_channel_message" && res.message.in_channel && res.channel_id === channelId){
                 let _user;
                 if(usersMap.has(res.message.from_users)){
@@ -153,9 +177,14 @@ export const Message = () => {
                     usersMap.set(res.message.from_users, _user);
                 }
                 
-                messageapi.updateMessage(res.message.id, {
-                    has_been_read: true
-                })
+                // messageapi.updateMessage(res.message.id, {
+                //     has_been_read: true
+                // })
+
+                console.log(loggedInUser.id, res.message.id, "....")
+                const messageStatus = await messagesStatusAPI.updateMessageStatus(res.message.id, loggedInUser?.id, {has_been_read: 1})
+                console.log(messageStatus, "112");
+
                 setChannelMessages((prev) => [...prev, 
                     {...res.message,
                     _user}]);
@@ -491,22 +520,34 @@ export const Message = () => {
 
          setData("");
 
-    
-        await channelMessageApi.createChannelMessage({
+         await channelMessageApi.createChannelMessage({
             channel_id: channelId,
             message_id: idMessage.id
         })
 
-        for(const channelMember of channelMembers){
-            if(channelMember.user_id != loggedInUser?.id){
+         console.log(channelMembers, "]]")
+         for(const channelMember of channelMembers){
+            console.log(idMessage.id, channelMember.user_id, "\|/");
+            if(channelMember.user_id !== loggedInUser?.id){
                 await messageStatusAPI.createMessageStatus({
                     message_id: idMessage.id,
                     user_id: channelMember.user_id
                 })
-
             }
-
-        }
+                
+            // if(channelMember.user_id == loggedInUser?.id){
+            //     await messageStatusAPI.updateMessageStatus(
+            //         idMessage.id,
+            //         channelMember.user_id,
+            //         {
+            //             has_been_read: true
+            //         }
+            //     )
+            // }
+ 
+         }
+    
+        
         
     }
 
@@ -824,10 +865,6 @@ export const Message = () => {
                                     </>}
                                 </span>
                                 <span onClick={() => handleToggleEmojiPicker(message.id)}>+</span>
-                                {/* {reaction.map((r) => (
-                                    r.message_id == message.id ? <span>{r?.reaction}</span> : ""
-
-                                ))} */}
                                 <div className="message-reactions" key={message.id}>{renderReactions(message.id)}</div>
                                 {activeEmojiPicker === message.id && <EmojiPicker reactionsDefaultOpen={true} onReactionClick={handleReaction} onEmojiClick={handleReaction}/>}
                             </div>    

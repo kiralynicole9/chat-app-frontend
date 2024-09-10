@@ -72,7 +72,7 @@ export const AddPeoplePopUp = ({isActive, onRequestClose, channelId}) => {
         return (
             <div className="add-people-popup">
                 <div className='search-people'>
-                    <div>
+                    <div className='search-people-header'>
                         <FontAwesomeIcon icon={faSearch}></FontAwesomeIcon>
                         <input type="text" className='users-list-input-search add' placeholder='Search...' value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
                     </div>

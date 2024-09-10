@@ -15,6 +15,9 @@
     justify-content: space-between;
     margin: 10px;
 }
+.search-people-header{
+    display:flex;
+}
 .users-list-popup{
     display: flex;
     flex-direction: column;

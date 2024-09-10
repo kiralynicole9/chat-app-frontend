@@ -6,6 +6,8 @@ import { Notification } from "../../API/NotificationAPI";
 import { useNavigate, useParams } from "react-router-dom";
 import { getUserSession } from "../../UserSession";
 import { ChannelMembersAPI } from "../../API/ChannelMembersAPI";
+import { MessagesStatusAPI } from "../../API/MessagesStatusAPI";
+import { NotificationStatusAPI } from "../../API/NotificationStatusAPI";
 
 
 export const PopUp = (props) => {
@@ -23,12 +25,17 @@ export const PopUp = (props) => {
         props.handleNotifications?.();
     }
 
-    const readNotificationChannel = (notification: Notification) => {
-        // const notificationapi = new NotificationAPI();
+    const readNotificationChannel = async(notification: Notification) => {
+         const notificationStatusAPI = new NotificationStatusAPI();
         // const channelNotifications = notificationapi.makeNotificationRead(notification.id, {has_been_read: 1});
-        setChannelNotifications((prev) => prev.filter((n) => n.id != notification.id))
-        navigate(`/channels/${notification.channel_id}`);
-        props.handleNotifications?.();
+        // const messagesStatusAPI = new MessagesStatusAPI();
+        // const messageStatus = await messagesStatusAPI.updateMessageStatus(notification.id_message, getUserSession().id, {has_been_read: 1})
+
+        console.log(messageStatus, "||");
+
+       // setChannelNotifications((prev) => prev.filter((n) => n.id != notification.id))
+       // navigate(`/channels/${notification.channel_id}`);
+       // props.handleNotifications?.();
     }
 
     useEffect(() => {

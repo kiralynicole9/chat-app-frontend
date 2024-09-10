@@ -107,7 +107,7 @@ export const  ProfilePopUp = (props) => {
                             </span>
                             <span>
                                 <FontAwesomeIcon icon={faSmile} onClick={handleStatus}></FontAwesomeIcon>
-                                {status && <EmojiPicker className="emoji-picker" onEmojiClick={onEmojiClick}></EmojiPicker >}
+                                {status && <EmojiPicker className="emoji-picker profile" onEmojiClick={onEmojiClick} height={300}></EmojiPicker >}
 
                             </span>
                         </div>

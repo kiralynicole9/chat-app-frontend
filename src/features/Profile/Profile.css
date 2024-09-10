@@ -12,6 +12,7 @@
     right: 0;
     z-index: 9999;
     
+    
 }
 
 .contact-information{  
@@ -53,6 +54,10 @@
 
 .profile-input{
     display: none;
+}
+
+.profile{
+    bottom: 0%;
 }
 
 

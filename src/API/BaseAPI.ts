@@ -67,6 +67,19 @@ export abstract class BaseAPI {
         return await res.json();
     }
 
+    protected async patchMultipleParams<T>(id1: number, id2: number, data: Partial<T>){
+        const url = this.createUrl() + "/read/" + id1 + "/" + id2;
+        const res = await fetch(url, {
+            method: 'PATCH',
+            body: JSON.stringify(data),
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
+
+        return await res.json();
+    }
+
     protected async updateFile(id: number, data: any){
         const url = this.createUrl() + "/file/" + id;
         const res = await fetch(url, {
