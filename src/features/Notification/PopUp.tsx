@@ -26,16 +26,18 @@ export const PopUp = (props) => {
     }
 
     const readNotificationChannel = async(notification: Notification) => {
-         const notificationStatusAPI = new NotificationStatusAPI();
-        // const channelNotifications = notificationapi.makeNotificationRead(notification.id, {has_been_read: 1});
+        const notificationStatusAPI = new NotificationStatusAPI();
+        await notificationStatusAPI.updateNotificationStatus(notification.id, getUserSession()?.id, {has_been_read: 1});
+
+        //const channelNotifications = notificationapi.makeNotificationRead(notification.id, {has_been_read: 1});
         // const messagesStatusAPI = new MessagesStatusAPI();
         // const messageStatus = await messagesStatusAPI.updateMessageStatus(notification.id_message, getUserSession().id, {has_been_read: 1})
 
-        console.log(messageStatus, "||");
+        //console.log(messageStatus, "||");
 
-       // setChannelNotifications((prev) => prev.filter((n) => n.id != notification.id))
-       // navigate(`/channels/${notification.channel_id}`);
-       // props.handleNotifications?.();
+       setChannelNotifications((prev) => prev.filter((n) => n.id != notification.id))
+       navigate(`/channels/${notification.channel_id}`);
+       props.handleNotifications?.();
     }
 
     useEffect(() => {
@@ -56,6 +58,7 @@ export const PopUp = (props) => {
                 const _channelNotifications = await notificationapi.getNotificationsChannel(channel.channel_id);
                 console.log(_channelNotifications, "lll")
                 //has_been_read
+                
                 arr.push(_channelNotifications.filter(n => n.from_user.id !== getUserSession().id));
             }
             console.log(arr.flat(), ":::")
