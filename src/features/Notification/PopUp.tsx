@@ -19,15 +19,17 @@ export const PopUp = (props) => {
 
     const readNotification = (notification: Notification) => {
         const notificationapi = new NotificationAPI();
-        const notifications = notificationapi.makeNotificationRead(notification.id, {has_been_read: 1});
+        const _notifications = notificationapi.makeNotificationRead(notification.id, {has_been_read: 1});
         setNotifications((prev) => prev.filter((n) => n.id != notification.id))
+        console.log(notifications, "888")
         navigate(`/${notification.from_user.id}`);
         props.handleNotifications?.();
     }
 
     const readNotificationChannel = async(notification: Notification) => {
         const notificationStatusAPI = new NotificationStatusAPI();
-        await notificationStatusAPI.updateNotificationStatus(notification.id, getUserSession()?.id, {has_been_read: 1});
+        const _channelNotifications = await notificationStatusAPI.updateNotificationStatus(notification.id, getUserSession()?.id, {has_been_read: 1});
+        console.log(_channelNotifications, "/?")
 
         //const channelNotifications = notificationapi.makeNotificationRead(notification.id, {has_been_read: 1});
         // const messagesStatusAPI = new MessagesStatusAPI();
@@ -36,6 +38,8 @@ export const PopUp = (props) => {
         //console.log(messageStatus, "||");
 
        setChannelNotifications((prev) => prev.filter((n) => n.id != notification.id))
+       channelNotifications.filter((n) => n.id != notification.id)
+       console.log(channelNotifications, "777")
        navigate(`/channels/${notification.channel_id}`);
        props.handleNotifications?.();
     }
@@ -48,6 +52,8 @@ export const PopUp = (props) => {
             const _notifications = await notificationapi.getNotifications(getUserSession().id)
             console.log(_notifications, "}}")
             setNotifications(_notifications);
+
+            console.log(notifications, "\\\\")
             
     
             const channels = await channelMembersApi.getChannelByMemberId(getUserSession().id);
@@ -55,7 +61,7 @@ export const PopUp = (props) => {
 
             let arr = [];
             for(const channel of channels.channels){
-                const _channelNotifications = await notificationapi.getNotificationsChannel(channel.channel_id);
+                const _channelNotifications = await notificationapi.getNotificationsChannel(channel.channel_id, getUserSession().id);
                 console.log(_channelNotifications, "lll")
                 //has_been_read
                 

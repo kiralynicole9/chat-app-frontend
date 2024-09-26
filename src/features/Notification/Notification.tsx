@@ -28,7 +28,7 @@ export const Notification = () => {
 
             let sum = notifications.length;
             for(const channel of channels.channels){
-                const _channelNotifications = await notificationapi.getNotificationsChannel(channel.channel_id);
+                const _channelNotifications = await notificationapi.getNotificationsChannel(channel.channel_id, getUserSession().id);
                 //has_been_read
                 sum+=_channelNotifications.filter(n => n.from_user.id !== getUserSession().id).length;
             }

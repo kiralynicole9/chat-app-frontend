@@ -16,8 +16,8 @@ export class NotificationAPI extends BaseAPI{
         return this.getByQueryParams(`user=${userId}`);  
     }
 
-    public async getNotificationsChannel(channelId: number): Promise<Notification>{
-        return this.getByQueryParams(`channelId=${channelId}`)
+    public async getNotificationsChannel(channelId: number, userId: number): Promise<Notification>{
+        return this.getByQueryParams(`channelId=${channelId}&userId=${userId}`)
     }
 
     public async sendNotifications(data: object){

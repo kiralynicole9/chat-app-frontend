@@ -158,6 +158,8 @@ export const Message = () => {
                 
             }
 
+            console.log(fetchedMessages, "0000")
+
             setChannelMessages(fetchedMessages)
         }
         
